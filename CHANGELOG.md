@@ -6,6 +6,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Swap EOL git-cliff-action for taiki-e/install-action.
+
+## [Unreleased]
+
 ## [0.2.0] - 2026-05-17
 
 ### Added
