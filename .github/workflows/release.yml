@@ -29,13 +29,13 @@ jobs:
         id: version
         run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Generate technical release notes
-        uses: orhun/git-cliff-action@v3
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
         with:
-          config: cliff.toml
-          args: --latest --strip header --tag ${{ steps.version.outputs.tag }}
-        env:
-          OUTPUT: RELEASE_NOTES.md
+          tool: git-cliff
+
+      - name: Generate technical release notes
+        run: git-cliff --config cliff.toml --latest --strip header --tag ${{ steps.version.outputs.tag }} --output RELEASE_NOTES.md
 
       - name: Build source archive
         run: |

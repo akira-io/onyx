@@ -18,13 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate Unreleased section
-        uses: orhun/git-cliff-action@v3
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
         with:
-          config: cliff.toml
-          args: --unreleased --prepend CHANGELOG.md --tag-pattern "v[0-9]*"
-        env:
-          OUTPUT: CHANGELOG.md
+          tool: git-cliff
+
+      - name: Regenerate Unreleased section
+        run: git-cliff --config cliff.toml --unreleased --prepend CHANGELOG.md --tag-pattern "v[0-9]*"
 
       - name: Detect changes
         id: diff
