@@ -1,0 +1,62 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Resolve version
+        id: version
+        run: echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate technical release notes
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --latest --strip header --tag ${{ steps.version.outputs.tag }}
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      - name: Build source archive
+        run: |
+          mkdir -p dist
+          git archive --format=tar.gz --prefix=desktopkit-${{ steps.version.outputs.tag }}/ \
+            -o dist/desktopkit-${{ steps.version.outputs.tag }}.tar.gz HEAD
+
+      - name: Compute coverage report
+        run: |
+          go test -coverprofile=coverage.txt ./... || true
+          if [ -f coverage.txt ]; then
+            mv coverage.txt dist/coverage-${{ steps.version.outputs.tag }}.txt
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/*
+          fail_on_unmatched_files: false
+          generate_release_notes: false
