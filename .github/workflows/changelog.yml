@@ -24,7 +24,9 @@ jobs:
           tool: git-cliff
 
       - name: Regenerate Unreleased section
-        run: git-cliff --config cliff.toml --unreleased --prepend CHANGELOG.md --tag-pattern "v[0-9]*"
+        run: |
+          git-cliff --config cliff.toml --unreleased --tag-pattern "v[0-9]*" --output /tmp/unreleased.md
+          python3 .github/scripts/replace_unreleased.py CHANGELOG.md /tmp/unreleased.md
 
       - name: Detect changes
         id: diff
