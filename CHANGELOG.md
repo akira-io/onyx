@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `clipboard` package. `Read` and `Write` operate on the system clipboard as plain text via per-platform backends (`pbcopy`/`pbpaste` on macOS, PowerShell on Windows, Wayland/X11 tools on Linux). Sentinel `ErrClipboardUnavailable` is returned only on Linux when none of `wl-clipboard`, `xclip`, or `xsel` is installed.
+
 ## [1.0.2] - 2026-05-18
 
 ### Changed

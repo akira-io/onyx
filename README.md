@@ -119,9 +119,10 @@ That split asked callers to classify each input upfront. In practice the classif
 | [paths](./docs/modules/paths.md) | Configuration, data, cache, and log directories per platform. |
 | [files](./docs/modules/files.md) | Open paths and URLs, reveal in file manager. |
 | [shell](./docs/modules/shell.md) | Resolve CLI binaries via PATH lookup with explicit fallback paths. |
+| [clipboard](./docs/modules/clipboard.md) | Read and write the system clipboard as plain text. |
 | [osinfo](./docs/modules/osinfo.md) | Typed runtime detection helpers shared by every module. |
 
-Planned: `clipboard`, `notify`, `keyring`.
+Planned: `notify`, `keyring`.
 
 ## Reading guide
 
