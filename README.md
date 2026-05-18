@@ -92,7 +92,7 @@ _ = files.RevealInFileManager(config)
 
 claude, err := shell.NewResolver().
     Lookup("claude").
-    Fallback("/opt/homebrew/bin/claude").
+    Lookup("/opt/homebrew/bin/claude").
     Resolve()
 ```
 

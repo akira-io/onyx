@@ -5,88 +5,59 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/akira-io/onyx/osinfo"
 )
 
 var ErrBinaryNotFound = errors.New("shell: binary not found")
 
-type ResolutionSource int
-
-const (
-	SourceUnknown ResolutionSource = iota
-	SourcePath
-	SourceFallback
-)
-
-func (s ResolutionSource) String() string {
-	switch s {
-	case SourcePath:
-		return "path"
-	case SourceFallback:
-		return "fallback"
-	default:
-		return "unknown"
-	}
-}
-
-type ResolvedExecutable struct {
-	absolutePath string
-	source       ResolutionSource
-}
-
-func (r ResolvedExecutable) AbsolutePath() string {
-	return r.absolutePath
-}
-
-func (r ResolvedExecutable) Source() ResolutionSource {
-	return r.source
-}
-
 type Resolver struct {
-	lookups   []string
-	fallbacks []string
+	lookups []string
 }
 
 func NewResolver() Resolver {
 	return Resolver{}
 }
 
-func (r Resolver) Lookup(name string) Resolver {
-	if name == "" {
+func (r Resolver) Lookup(target string) Resolver {
+	if target == "" {
 		return r
 	}
-	r.lookups = append(r.lookups, name)
+	r.lookups = append(r.lookups, target)
 	return r
 }
 
-func (r Resolver) Fallback(path string) Resolver {
-	if path == "" {
-		return r
-	}
-	r.fallbacks = append(r.fallbacks, path)
-	return r
-}
-
-func (r Resolver) Fallbacks(paths []string) Resolver {
-	for _, path := range paths {
-		r = r.Fallback(path)
+func (r Resolver) Lookups(targets []string) Resolver {
+	for _, t := range targets {
+		r = r.Lookup(t)
 	}
 	return r
 }
 
-func (r Resolver) Resolve() (ResolvedExecutable, error) {
-	for _, name := range r.lookups {
-		if absolute, err := exec.LookPath(name); err == nil {
-			return ResolvedExecutable{absolutePath: absolute, source: SourcePath}, nil
+func (r Resolver) Resolve() (string, error) {
+	for _, t := range r.lookups {
+		if isPathLike(t) {
+			if isExecutableFile(t) {
+				return t, nil
+			}
+			continue
+		}
+		if absolute, err := exec.LookPath(t); err == nil {
+			return absolute, nil
 		}
 	}
-	for _, fallback := range r.fallbacks {
-		if isExecutableFile(fallback) {
-			return ResolvedExecutable{absolutePath: fallback, source: SourceFallback}, nil
-		}
+	return "", ErrBinaryNotFound
+}
+
+func isPathLike(s string) bool {
+	if strings.ContainsAny(s, `/\`) {
+		return true
 	}
-	return ResolvedExecutable{}, ErrBinaryNotFound
+	if len(s) >= 2 && s[1] == ':' {
+		return true
+	}
+	return false
 }
 
 func ListNpmGlobalBinDirs() []string {

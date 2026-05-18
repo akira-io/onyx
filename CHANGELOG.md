@@ -6,6 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-05-18
+
+### Changed
+
+- `shell.Resolver` simplified. `Fallback` and `Fallbacks` removed; `Lookup` and `Lookups` now accept either a name (resolved via `PATH`) or a path (checked as a file). Auto-detected via path separators or Windows drive prefix.
+- `Resolve` now returns `(string, error)` directly. `ResolvedExecutable` and `ResolutionSource` removed.
+- Reason: one verb, one mental model. Callers no longer pick between "name" and "fallback".
+- README and `docs/modules/shell.md` updated.
+
+### Removed
+
+- `Fallback`, `Fallbacks` methods.
+- `ResolvedExecutable` type and its `AbsolutePath`/`Source` getters.
+- `ResolutionSource` enum (`SourceUnknown`, `SourcePath`, `SourceFallback`).
+
 ## [1.0.1] - 2026-05-18
 
 ### Changed

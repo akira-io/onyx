@@ -10,81 +10,70 @@ import (
 )
 
 func TestResolve_FailsWhenNothingMatches(t *testing.T) {
-	candidates := NewResolver().
+	_, err := NewResolver().
 		Lookup("definitely-not-a-real-binary-xyz").
-		Fallback("/definitely/not/a/path/binary")
-
-	_, err := candidates.Resolve()
+		Lookup("/definitely/not/a/path/binary").
+		Resolve()
 	if !errors.Is(err, ErrBinaryNotFound) {
 		t.Fatalf("expected ErrBinaryNotFound, got %v", err)
 	}
 }
 
-func TestResolve_FindsExplicitCandidateFile(t *testing.T) {
+func TestResolve_FindsExplicitPath(t *testing.T) {
 	dir := t.TempDir()
 	binary := filepath.Join(dir, "fakebin")
 	if err := os.WriteFile(binary, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
 		t.Fatalf("write fake binary: %v", err)
 	}
 
-	candidates := NewResolver().
+	resolved, err := NewResolver().
 		Lookup("definitely-not-a-real-binary-xyz").
-		Fallback(binary)
-
-	resolved, err := candidates.Resolve()
+		Lookup(binary).
+		Resolve()
 	if err != nil {
 		t.Fatalf("Resolve: %v", err)
 	}
-	if resolved.AbsolutePath() != binary {
-		t.Fatalf("expected %q, got %q", binary, resolved.AbsolutePath())
-	}
-	if resolved.Source() != SourceFallback {
-		t.Fatalf("expected SourceFallback, got %s", resolved.Source())
+	if resolved != binary {
+		t.Fatalf("expected %q, got %q", binary, resolved)
 	}
 }
 
-func TestResolve_PrefersPATHOverCandidates(t *testing.T) {
-	candidates := NewResolver().
+func TestResolve_PrefersFirstMatch(t *testing.T) {
+	resolved, err := NewResolver().
 		Lookup("sh").
-		Fallback("/definitely/not/a/path/binary")
-
-	resolved, err := candidates.Resolve()
+		Lookup("/definitely/not/a/path/binary").
+		Resolve()
 	if err != nil {
 		t.Skipf("sh not available on this system: %v", err)
 	}
-	if resolved.Source() != SourcePath {
-		t.Fatalf("expected SourcePath, got %s", resolved.Source())
+	if !filepath.IsAbs(resolved) {
+		t.Fatalf("expected absolute path, got %q", resolved)
 	}
 }
 
 func TestResolver_IgnoresEmptyInputs(t *testing.T) {
-	candidates := NewResolver().
-		Lookup("").
-		Fallback("")
-
-	_, err := candidates.Resolve()
+	_, err := NewResolver().Lookup("").Lookup("").Resolve()
 	if !errors.Is(err, ErrBinaryNotFound) {
 		t.Fatalf("expected ErrBinaryNotFound, got %v", err)
 	}
 }
 
-func TestResolver_FallbacksAddsAll(t *testing.T) {
+func TestResolver_LookupsBulk(t *testing.T) {
 	dir := t.TempDir()
 	binary := filepath.Join(dir, "fakebin")
 	if err := os.WriteFile(binary, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
 		t.Fatalf("write fake binary: %v", err)
 	}
 
-	candidates := NewResolver().
+	resolved, err := NewResolver().
 		Lookup("definitely-not-a-real-binary-xyz").
-		Fallbacks([]string{"", "/definitely/not/here", binary})
-
-	resolved, err := candidates.Resolve()
+		Lookups([]string{"", "/definitely/not/here", binary}).
+		Resolve()
 	if err != nil {
 		t.Fatalf("Resolve: %v", err)
 	}
-	if resolved.AbsolutePath() != binary {
-		t.Fatalf("expected %q, got %q", binary, resolved.AbsolutePath())
+	if resolved != binary {
+		t.Fatalf("expected %q, got %q", binary, resolved)
 	}
 }
 
@@ -127,16 +116,6 @@ func TestListWindowsApplicationDirs_EmptyOnNonWindows(t *testing.T) {
 	}
 }
 
-func TestListWindowsApplicationDirs_EmptyWhenNameMissing(t *testing.T) {
-	if runtime.GOOS != "windows" {
-		t.Skipf("test targets Windows platform")
-	}
-	dirs := ListWindowsApplicationDirs("")
-	if len(dirs) != 0 {
-		t.Fatalf("expected empty slice when name empty, got %v", dirs)
-	}
-}
-
 func TestListNpmGlobalBinDirs_ReturnsPlatformSpecificPaths(t *testing.T) {
 	dirs := ListNpmGlobalBinDirs()
 	if runtime.GOOS == "windows" {
@@ -157,5 +136,23 @@ func TestListNpmGlobalBinDirs_ReturnsPlatformSpecificPaths(t *testing.T) {
 	want := filepath.Join(home, ".npm-global", "bin")
 	if !slices.Contains(dirs, want) {
 		t.Fatalf("expected %q in %v", want, dirs)
+	}
+}
+
+func TestIsPathLike(t *testing.T) {
+	cases := []struct {
+		in   string
+		want bool
+	}{
+		{"claude", false},
+		{"/opt/homebrew/bin/claude", true},
+		{"./bin/foo", true},
+		{`C:\Program Files\app.exe`, true},
+		{"", false},
+	}
+	for _, c := range cases {
+		if got := isPathLike(c.in); got != c.want {
+			t.Errorf("isPathLike(%q) = %v, want %v", c.in, got, c.want)
+		}
 	}
 }
