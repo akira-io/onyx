@@ -90,9 +90,9 @@ app := paths.For("Hyperion")
 config, _ := app.Config()
 _ = files.RevealInFileManager(config)
 
-claude, err := shell.NewCandidates().
-    WithName("claude").
-    WithCandidate("/opt/homebrew/bin/claude").
+claude, err := shell.NewResolver().
+    Lookup("claude").
+    Fallback("/opt/homebrew/bin/claude").
     Resolve()
 ```
 
@@ -108,7 +108,7 @@ Stable at v1.0.0. Public API stable within a major version (SemVer).
 | --- | --- |
 | [paths](./docs/modules/paths.md) | Configuration, data, cache, and log directories per platform. |
 | [files](./docs/modules/files.md) | Open paths and URLs, reveal in file manager. |
-| [shell](./docs/modules/shell.md) | Resolve CLI binaries via PATH and explicit candidates. |
+| [shell](./docs/modules/shell.md) | Resolve CLI binaries via PATH lookup with explicit fallback paths. |
 | [osinfo](./docs/modules/osinfo.md) | Typed runtime detection helpers shared by every module. |
 
 Planned: `clipboard`, `notify`, `keyring`.

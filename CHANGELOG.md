@@ -6,6 +6,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-05-18
+
+### Changed
+
+- shell API renamed for clarity. No production consumers yet, version held within v1.
+  - `NewCandidates` is now `NewResolver`.
+  - `Candidates` struct is now `Resolver`.
+  - `WithName(s)` is now `Lookup(s)`. Semantics: PATH lookup.
+  - `WithCandidate(p)` is now `Fallback(p)`. Semantics: explicit fallback path tried after PATH misses.
+  - `WithCandidates(ps)` is now `Fallbacks(ps)`.
+  - `SourceCandidate` is now `SourceFallback`.
+- Reason: "candidate" was ambiguous. New names reveal intent.
+- README before/after example uses the new API.
+
 ## [1.0.0] - 2026-05-18
 
 ### Changed

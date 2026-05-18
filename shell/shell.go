@@ -16,15 +16,15 @@ type ResolutionSource int
 const (
 	SourceUnknown ResolutionSource = iota
 	SourcePath
-	SourceCandidate
+	SourceFallback
 )
 
 func (s ResolutionSource) String() string {
 	switch s {
 	case SourcePath:
 		return "path"
-	case SourceCandidate:
-		return "candidate"
+	case SourceFallback:
+		return "fallback"
 	default:
 		return "unknown"
 	}
@@ -43,47 +43,47 @@ func (r ResolvedExecutable) Source() ResolutionSource {
 	return r.source
 }
 
-type Candidates struct {
-	names      []string
-	candidates []string
+type Resolver struct {
+	lookups   []string
+	fallbacks []string
 }
 
-func NewCandidates() Candidates {
-	return Candidates{}
+func NewResolver() Resolver {
+	return Resolver{}
 }
 
-func (c Candidates) WithName(name string) Candidates {
+func (r Resolver) Lookup(name string) Resolver {
 	if name == "" {
-		return c
+		return r
 	}
-	c.names = append(c.names, name)
-	return c
+	r.lookups = append(r.lookups, name)
+	return r
 }
 
-func (c Candidates) WithCandidate(path string) Candidates {
+func (r Resolver) Fallback(path string) Resolver {
 	if path == "" {
-		return c
+		return r
 	}
-	c.candidates = append(c.candidates, path)
-	return c
+	r.fallbacks = append(r.fallbacks, path)
+	return r
 }
 
-func (c Candidates) WithCandidates(paths []string) Candidates {
+func (r Resolver) Fallbacks(paths []string) Resolver {
 	for _, path := range paths {
-		c = c.WithCandidate(path)
+		r = r.Fallback(path)
 	}
-	return c
+	return r
 }
 
-func (c Candidates) Resolve() (ResolvedExecutable, error) {
-	for _, name := range c.names {
+func (r Resolver) Resolve() (ResolvedExecutable, error) {
+	for _, name := range r.lookups {
 		if absolute, err := exec.LookPath(name); err == nil {
 			return ResolvedExecutable{absolutePath: absolute, source: SourcePath}, nil
 		}
 	}
-	for _, candidate := range c.candidates {
-		if isExecutableFile(candidate) {
-			return ResolvedExecutable{absolutePath: candidate, source: SourceCandidate}, nil
+	for _, fallback := range r.fallbacks {
+		if isExecutableFile(fallback) {
+			return ResolvedExecutable{absolutePath: fallback, source: SourceFallback}, nil
 		}
 	}
 	return ResolvedExecutable{}, ErrBinaryNotFound

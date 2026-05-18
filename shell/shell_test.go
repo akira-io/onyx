@@ -10,9 +10,9 @@ import (
 )
 
 func TestResolve_FailsWhenNothingMatches(t *testing.T) {
-	candidates := NewCandidates().
-		WithName("definitely-not-a-real-binary-xyz").
-		WithCandidate("/definitely/not/a/path/binary")
+	candidates := NewResolver().
+		Lookup("definitely-not-a-real-binary-xyz").
+		Fallback("/definitely/not/a/path/binary")
 
 	_, err := candidates.Resolve()
 	if !errors.Is(err, ErrBinaryNotFound) {
@@ -27,9 +27,9 @@ func TestResolve_FindsExplicitCandidateFile(t *testing.T) {
 		t.Fatalf("write fake binary: %v", err)
 	}
 
-	candidates := NewCandidates().
-		WithName("definitely-not-a-real-binary-xyz").
-		WithCandidate(binary)
+	candidates := NewResolver().
+		Lookup("definitely-not-a-real-binary-xyz").
+		Fallback(binary)
 
 	resolved, err := candidates.Resolve()
 	if err != nil {
@@ -38,15 +38,15 @@ func TestResolve_FindsExplicitCandidateFile(t *testing.T) {
 	if resolved.AbsolutePath() != binary {
 		t.Fatalf("expected %q, got %q", binary, resolved.AbsolutePath())
 	}
-	if resolved.Source() != SourceCandidate {
-		t.Fatalf("expected SourceCandidate, got %s", resolved.Source())
+	if resolved.Source() != SourceFallback {
+		t.Fatalf("expected SourceFallback, got %s", resolved.Source())
 	}
 }
 
 func TestResolve_PrefersPATHOverCandidates(t *testing.T) {
-	candidates := NewCandidates().
-		WithName("sh").
-		WithCandidate("/definitely/not/a/path/binary")
+	candidates := NewResolver().
+		Lookup("sh").
+		Fallback("/definitely/not/a/path/binary")
 
 	resolved, err := candidates.Resolve()
 	if err != nil {
@@ -57,10 +57,10 @@ func TestResolve_PrefersPATHOverCandidates(t *testing.T) {
 	}
 }
 
-func TestCandidates_IgnoresEmptyInputs(t *testing.T) {
-	candidates := NewCandidates().
-		WithName("").
-		WithCandidate("")
+func TestResolver_IgnoresEmptyInputs(t *testing.T) {
+	candidates := NewResolver().
+		Lookup("").
+		Fallback("")
 
 	_, err := candidates.Resolve()
 	if !errors.Is(err, ErrBinaryNotFound) {
@@ -68,16 +68,16 @@ func TestCandidates_IgnoresEmptyInputs(t *testing.T) {
 	}
 }
 
-func TestCandidates_WithCandidatesAddsAll(t *testing.T) {
+func TestResolver_FallbacksAddsAll(t *testing.T) {
 	dir := t.TempDir()
 	binary := filepath.Join(dir, "fakebin")
 	if err := os.WriteFile(binary, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
 		t.Fatalf("write fake binary: %v", err)
 	}
 
-	candidates := NewCandidates().
-		WithName("definitely-not-a-real-binary-xyz").
-		WithCandidates([]string{"", "/definitely/not/here", binary})
+	candidates := NewResolver().
+		Lookup("definitely-not-a-real-binary-xyz").
+		Fallbacks([]string{"", "/definitely/not/here", binary})
 
 	resolved, err := candidates.Resolve()
 	if err != nil {

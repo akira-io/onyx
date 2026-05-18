@@ -8,18 +8,18 @@ This is the package every Go desktop application reaches for when it has to wrap
 
 | Symbol | Purpose |
 | --- | --- |
-| `Candidates` | Builder that collects PATH names and explicit candidate file paths. |
-| `Candidates.WithName(name string) Candidates` | Adds an executable name to look up via PATH. |
-| `Candidates.WithCandidate(path string) Candidates` | Adds an explicit absolute path to try if PATH fails. |
-| `Candidates.WithCandidates(paths []string) Candidates` | Adds many explicit absolute paths. Empty entries are ignored. |
-| `(Candidates) Resolve() (ResolvedExecutable, error)` | Returns the first candidate that exists and is executable. |
+| `Resolver` | Builder that collects PATH names and explicit candidate file paths. |
+| `Candidates.Lookup(name string) Candidates` | Adds an executable name to look up via PATH. |
+| `Candidates.Fallback(path string) Candidates` | Adds an explicit absolute path to try if PATH fails. |
+| `Candidates.Fallbacks(paths []string) Candidates` | Adds many explicit absolute paths. Empty entries are ignored. |
+| `(Resolver) Resolve() (ResolvedExecutable, error)` | Returns the first candidate that exists and is executable. |
 | `ListNpmGlobalBinDirs() []string` | Conventional directories where npm global packages install binaries. |
 | `ListUserLocalBinDirs() []string` | Conventional per-user bin directories (`~/.local/bin`, `~/bin`). |
 | `ListSystemBinDirs() []string` | Conventional system-wide bin directories per platform. |
 | `ListWindowsApplicationDirs(applicationName string) []string` | Conventional Windows install directories for a named application. |
 | `ResolvedExecutable` | The result of a successful resolution. |
 | `(ResolvedExecutable) AbsolutePath() string` | Absolute path to the binary. |
-| `(ResolvedExecutable) Source() ResolutionSource` | Where the binary was found (`SourcePath`, `SourceCandidate`). |
+| `(ResolvedExecutable) Source() ResolutionSource` | Where the binary was found (`SourcePath`, `SourceFallback`). |
 | `ErrBinaryNotFound` | Returned when no candidate exists. |
 
 ## Example
@@ -44,9 +44,9 @@ for _, dir := range dirs {
     candidates = append(candidates, filepath.Join(dir, binary))
 }
 
-resolved, err := shell.NewCandidates().
-    WithName(name).
-    WithCandidates(candidates).
+resolved, err := shell.NewResolver().
+    Lookup(name).
+    Fallbacks(candidates).
     Resolve()
 if err != nil {
     return err
@@ -68,4 +68,4 @@ None beyond the standard library. (`os/exec.LookPath` is used internally — a f
 ## Related
 
 - [files](./files.md) — when you need to launch a file with the default application instead of a specific CLI.
-- [osinfo](./osinfo.md) — callers can use it to choose which executable extensions to pass to `WithName`.
+- [osinfo](./osinfo.md) — callers can use it to choose which executable extensions to pass to `Lookup`.
