@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/akira-io/desktopkit/osinfo"
+	"github.com/akira-io/onyx/osinfo"
 )
 
 var ErrMissingApplicationName = errors.New("paths: application name is required")

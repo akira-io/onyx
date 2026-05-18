@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/akira-io/desktopkit/osinfo"
+	"github.com/akira-io/onyx/osinfo"
 )
 
 var (

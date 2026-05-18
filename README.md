@@ -1,14 +1,14 @@
-# desktopkit
+# onyx
 
 Cross-platform Go toolkit for building desktop applications without rewriting OS-specific glue every time.
 
-`desktopkit` packages thin, opinionated wrappers around the best individual community libraries (and direct OS calls when no library exists), behind a single, consistent, intention-revealing API.
+`onyx` packages thin, opinionated wrappers around the best individual community libraries (and direct OS calls when no library exists), behind a single, consistent, intention-revealing API.
 
 ```go
 import (
-    "github.com/akira-io/desktopkit/paths"
-    "github.com/akira-io/desktopkit/files"
-    "github.com/akira-io/desktopkit/shell"
+    "github.com/akira-io/onyx/paths"
+    "github.com/akira-io/onyx/files"
+    "github.com/akira-io/onyx/shell"
 )
 
 app := paths.For("Hyperion")
@@ -38,7 +38,7 @@ Planned: `clipboard`, `notify`, `keyring`.
 
 ## Reading guide
 
-- [docs/00-overview.md](./docs/00-overview.md) — what desktopkit is and is not.
+- [docs/00-overview.md](./docs/00-overview.md) — what onyx is and is not.
 - [docs/01-conventions.md](./docs/01-conventions.md) — naming, function design, documentation rules every module follows.
 - [docs/02-architecture.md](./docs/02-architecture.md) — package layout and the SOLID/DRY/KISS principles that drive it.
 - [docs/modules/](./docs/modules/) — per-module reference.
@@ -52,7 +52,7 @@ Planned: `clipboard`, `notify`, `keyring`.
 ## Installation
 
 ```sh
-go get github.com/akira-io/desktopkit
+go get github.com/akira-io/onyx
 ```
 
 Go 1.23 or later.

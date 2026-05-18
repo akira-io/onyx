@@ -40,8 +40,8 @@ jobs:
       - name: Build source archive
         run: |
           mkdir -p dist
-          git archive --format=tar.gz --prefix=desktopkit-${{ steps.version.outputs.tag }}/ \
-            -o dist/desktopkit-${{ steps.version.outputs.tag }}.tar.gz HEAD
+          git archive --format=tar.gz --prefix=onyx-${{ steps.version.outputs.tag }}/ \
+            -o dist/onyx-${{ steps.version.outputs.tag }}.tar.gz HEAD
 
       - name: Compute coverage report
         run: |

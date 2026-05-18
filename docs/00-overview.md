@@ -1,6 +1,6 @@
-# desktopkit — Overview
+# onyx — Overview
 
-`desktopkit` is the Akira Foundation's Go toolkit for building cross-platform desktop applications without writing the same OS-specific glue twice.
+`onyx` is the Akira Foundation's Go toolkit for building cross-platform desktop applications without writing the same OS-specific glue twice.
 
 It packages thin, opinionated wrappers around the best individual community libraries (and direct OS calls when no library exists), behind a single, consistent, intention-revealing API.
 
@@ -16,14 +16,14 @@ Every desktop application repeats the same primitives:
 - Sending a system notification.
 - Reading and writing secrets in the keychain.
 
-Across macOS, Linux, and Windows each of these has subtle differences. `desktopkit` makes those differences disappear behind a predictable API.
+Across macOS, Linux, and Windows each of these has subtle differences. `onyx` makes those differences disappear behind a predictable API.
 
 ## What it is
 
 - **Cross-platform** — single import works on `darwin`, `linux`, `windows`.
 - **Idiomatic Go** — packages, functions, and errors follow standard Go conventions.
-- **Driver-agnostic** — `desktopkit` defines the contracts; you compose the modules you need.
-- **Open source** — MIT-licensed, lives at `github.com/akira-io/desktopkit`.
+- **Driver-agnostic** — `onyx` defines the contracts; you compose the modules you need.
+- **Open source** — MIT-licensed, lives at `github.com/akira-io/onyx`.
 
 ## What it is not
 
