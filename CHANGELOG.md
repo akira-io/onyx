@@ -17,9 +17,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Removed
 
-- `Fallback`, `Fallbacks` methods.
-- `ResolvedExecutable` type and its `AbsolutePath`/`Source` getters.
-- `ResolutionSource` enum (`SourceUnknown`, `SourcePath`, `SourceFallback`).
+- `Fallback`, `Fallbacks` methods. Replaced by `Lookup` accepting either a name (PATH lookup) or a path (file check); auto-detected via path separators or Windows drive prefix.
+- `ResolvedExecutable` type and its `AbsolutePath`/`Source` getters. `Resolve` now returns `(string, error)` directly. Callers that previously called `.AbsolutePath()` on the result just use the returned string.
+- `ResolutionSource` enum:
+  - `SourcePath` reported the binary came from a `PATH` search via `exec.LookPath`.
+  - `SourceFallback` (previously `SourceCandidate`) reported the binary came from an explicit caller-supplied path.
+  - `SourceUnknown` covered uninitialized values.
+  - Removed because callers almost never branched on the source. When the source matters, callers can inspect the returned path themselves (compare against `PATH`, against a known install dir, etc.). Keeping the enum in the public API forced every consumer to import and pattern-match on a value most ignored.
 
 ## [1.0.1] - 2026-05-18
 

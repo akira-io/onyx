@@ -100,7 +100,17 @@ Same behavior on macOS, Linux, and Windows. No `runtime.GOOS` switches, no hand-
 
 ## Status
 
-Stable at v1.0.0. Public API stable within a major version (SemVer).
+Stable at v1.0.2. Public API stable within a major version (SemVer).
+
+## Design notes
+
+### `shell.Resolver`: one verb, two cases
+
+Earlier versions of `shell` exposed two separate concepts: `WithName(s)` for `PATH` lookups and `WithCandidate(p)` (later `Fallback(p)`) for explicit file paths to try when `PATH` missed. Resolution attached a source tag (`SourcePath` vs `SourceFallback` vs `SourceUnknown`) so callers could see how the binary was found.
+
+That split asked callers to classify each input upfront. In practice the classification is mechanical: if the string has a path separator (`/`, `\`) or a Windows drive prefix (`C:`), it is a path; otherwise it is a name. The source tag was rarely inspected.
+
+`Resolver` collapses everything to a single ordered list of targets. `Lookup` accepts both. `Resolve` returns the absolute path of the first target that resolves, or `ErrBinaryNotFound`. The result is a plain `string`. Callers that genuinely need to know how a binary was located inspect the returned path themselves.
 
 ## Modules
 
