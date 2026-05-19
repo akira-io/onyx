@@ -2,6 +2,8 @@
 
 Cross-platform Go toolkit for building desktop applications without rewriting OS-specific glue every time. Thin, opinionated wrappers around the best community libraries (and direct OS calls when no library exists), behind a single, intention-revealing API.
 
+> Full reference: [`docs/00-index.md`](docs/00-index.md) - one file per package, mirrored with the Rust crate's documentation tree.
+
 ## Why
 
 ```go
