@@ -1,6 +1,9 @@
 package osinfo
 
-import "runtime"
+import (
+	"os"
+	"runtime"
+)
 
 type Platform struct {
 	identifier string
@@ -37,4 +40,14 @@ func ExecutableExtension() string {
 		return ".exe"
 	}
 	return ""
+}
+
+// Hostname returns the operating system host name, or an empty string when it
+// cannot be determined.
+func Hostname() string {
+	name, err := os.Hostname()
+	if err != nil {
+		return ""
+	}
+	return name
 }

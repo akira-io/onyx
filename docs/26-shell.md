@@ -20,6 +20,8 @@ import "github.com/akira-io/onyx/shell"
 | `ListUserLocalBinDirs() []string` | func | `~/.local/bin`, `~/bin`. |
 | `ListSystemBinDirs() []string` | func | Platform-specific system bin directories. |
 | `ListWindowsApplicationDirs(applicationName string) []string` | func | `LOCALAPPDATA\Programs\<app>`, `ProgramFiles\<app>`, `ProgramFiles(x86)\<app>`. |
+| `LoginPath() string` | func | PATH as seen by the user's login shell; recovers tool dirs GUI launchers omit. |
+| `EnrichedEnviron() []string` | func | `os.Environ()` with PATH merged from the process and login-shell PATH. |
 
 `Resolver` is a value type. `Lookup` / `Lookups` return a **new** `Resolver` rather than mutating the receiver — chain calls freely.
 
@@ -118,4 +120,4 @@ Mirrors the Rust crate's `shell` module one-to-one: same `Resolver` builder shap
 
 ---
 
-Navigation: [← Paths](25-paths.md) · **Shell** · [Index ↑](00-index.md)
+Navigation: [← Paths](25-paths.md) · **Shell** · [Machine ID →](27-machineid.md)

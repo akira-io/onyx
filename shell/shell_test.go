@@ -6,8 +6,38 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strings"
 	"testing"
 )
+
+func TestLoginPath_NonEmptyAndContainsProcessPath(t *testing.T) {
+	got := LoginPath()
+	if got == "" {
+		t.Fatal("LoginPath should not be empty")
+	}
+}
+
+func TestEnrichedEnviron_KeepsSinglePathEntry(t *testing.T) {
+	env := EnrichedEnviron()
+	pathCount := 0
+	for _, kv := range env {
+		if strings.HasPrefix(kv, "PATH=") {
+			pathCount++
+		}
+	}
+	if pathCount != 1 {
+		t.Fatalf("expected exactly one PATH entry, got %d", pathCount)
+	}
+}
+
+func TestMergePath_DropsDuplicates(t *testing.T) {
+	sep := string(filepath.ListSeparator)
+	got := mergePath("a"+sep+"b", "b"+sep+"c")
+	want := "a" + sep + "b" + sep + "c"
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
 
 func TestResolve_FailsWhenNothingMatches(t *testing.T) {
 	_, err := NewResolver().

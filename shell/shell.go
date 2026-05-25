@@ -136,3 +136,60 @@ func isExecutableFile(path string) bool {
 	}
 	return true
 }
+
+// LoginPath returns the PATH as seen by the user's interactive login shell.
+// GUI applications launched outside a terminal on macOS and Linux do not
+// inherit the shell's PATH additions; this recovers them by asking the login
+// shell. On Windows, and when the shell cannot be queried, it falls back to the
+// current process PATH.
+func LoginPath() string {
+	if osinfo.Current().IsWindows() {
+		return os.Getenv("PATH")
+	}
+	shell := os.Getenv("SHELL")
+	if shell == "" {
+		shell = "/bin/sh"
+	}
+	out, err := exec.Command(shell, "-l", "-c", "echo $PATH").Output()
+	if err != nil {
+		return os.Getenv("PATH")
+	}
+	if trimmed := strings.TrimSpace(string(out)); trimmed != "" {
+		return trimmed
+	}
+	return os.Getenv("PATH")
+}
+
+// EnrichedEnviron returns the current environment with PATH replaced by the
+// union of the process PATH and the login shell PATH, preserving order and
+// dropping duplicates. Use it when spawning child processes that must find
+// user-installed tools.
+func EnrichedEnviron() []string {
+	merged := mergePath(os.Getenv("PATH"), LoginPath())
+	env := os.Environ()
+	for i, kv := range env {
+		if strings.HasPrefix(kv, "PATH=") {
+			env[i] = "PATH=" + merged
+			return env
+		}
+	}
+	return append(env, "PATH="+merged)
+}
+
+func mergePath(first, second string) string {
+	seen := make(map[string]struct{})
+	var ordered []string
+	for _, group := range []string{first, second} {
+		for _, segment := range filepath.SplitList(group) {
+			if segment == "" {
+				continue
+			}
+			if _, ok := seen[segment]; ok {
+				continue
+			}
+			seen[segment] = struct{}{}
+			ordered = append(ordered, segment)
+		}
+	}
+	return strings.Join(ordered, string(filepath.ListSeparator))
+}
