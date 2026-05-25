@@ -8,6 +8,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `osinfo.Hostname()` returns the operating system host name, or an empty string when it cannot be determined. Best-effort: callers supply their own fallback.
+- `machineid` package. `GetOrCreate(application)` returns a stable per-application identifier for the current machine, persisted in the system keyring. Sentinel `ErrEmptyApplication`.
+- `appearance` package. `IsDark()` reports whether the OS uses a dark color scheme via `defaults` (macOS), the registry (Windows), and `gsettings` (Linux). Best-effort: returns `false` when undetermined.
+- `shell.LoginPath()` and `shell.EnrichedEnviron()`. Recover the PATH from the user's login shell so GUI applications can locate user-installed tools (npm, php, git) that the launcher PATH omits.
+- `process` package. `Relaunch(applicationPath)` starts a fresh instance of the application (`open -n` on macOS, `start` on Windows, exec on Linux). Sentinel `ErrEmptyPath`.
 - `clipboard` package. `Read` and `Write` operate on the system clipboard as plain text via per-platform backends (`pbcopy`/`pbpaste` on macOS, PowerShell on Windows, Wayland/X11 tools on Linux). Sentinel `ErrClipboardUnavailable` is returned only on Linux when none of `wl-clipboard`, `xclip`, or `xsel` is installed.
 - `notify` package. `Show(title, body)` displays a desktop notification via `osascript` on macOS, `notify-send` on Linux, and PowerShell `BurntToast` (with `msg.exe` fallback) on Windows. Sentinels `ErrEmptyTitle` and `ErrNotifyUnavailable` cover the error cases.
 - `keyring` package. `Set`, `Get`, and `Delete` manage secrets in the system credential store via `security` (Keychain) on macOS, `secret-tool` (Secret Service) on Linux, and `cmdkey` + PowerShell `CredentialManager` on Windows. Sentinels `ErrNotFound`, `ErrKeyringUnavailable`, `ErrEmptyService`, and `ErrEmptyAccount` cover the error cases.

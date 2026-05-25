@@ -84,7 +84,10 @@ func main() {
 | [clipboard](./docs/modules/clipboard.md) | Read and write the system clipboard as plain text. |
 | [notify](./docs/modules/notify.md) | Show desktop notifications. |
 | [keyring](./docs/modules/keyring.md) | Store, retrieve, and delete secrets in the system credential store. |
-| [osinfo](./docs/modules/osinfo.md) | Typed runtime platform detection. |
+| [osinfo](./docs/modules/osinfo.md) | Typed runtime platform detection and host name. |
+| [machineid](./docs/modules/machineid.md) | Stable per-application machine identifier. |
+| [appearance](./docs/modules/appearance.md) | Detect the OS light/dark color scheme. |
+| [process](./docs/modules/process.md) | Relaunch the application across platforms. |
 
 ## Documentation
 
