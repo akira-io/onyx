@@ -17,6 +17,7 @@ import "github.com/akira-io/onyx/osinfo"
 | `(Platform).IsWindows() bool` | method | Windows predicate. |
 | `(Platform).String() string` | method | `"darwin" \| "linux" \| "windows" \| <other runtime.GOOS>`. |
 | `ExecutableExtension() string` | func | `".exe"` on Windows, `""` otherwise. |
+| `Hostname() string` | func | OS host name, or `""` when it cannot be determined. |
 
 `Platform` is a struct with one unexported field. Compare with `==`. Pass by value — it is cheap to copy.
 
@@ -68,6 +69,19 @@ target := "hyperion" + osinfo.ExecutableExtension()
 
 Use this when constructing paths to bundled binaries — e.g. embedding a sidecar via `embed` and writing it to disk before launch.
 
+## Hostname
+
+Returns the machine host name for labelling a device or session:
+
+```go
+name := osinfo.Hostname()
+if name == "" {
+    name = "Unknown device"
+}
+```
+
+Best-effort: an empty string is returned when the host name cannot be read, so callers supply their own fallback.
+
 ## Behaviour
 
 - `Current()` always succeeds — `runtime.GOOS` is a compile-time constant; there is no runtime call.
@@ -84,7 +98,7 @@ Use this when constructing paths to bundled binaries — e.g. embedding a sideca
 
 ## Dependencies
 
-None (uses `runtime` only).
+None (uses `runtime` and `os` from the standard library).
 
 ## Related packages
 
@@ -92,7 +106,7 @@ Every other package depends on `osinfo`. When adding a new package, ask `Current
 
 ## Cross-module parity
 
-Mirrors the Rust crate's `osinfo` module: same predicate names (`IsDarwin` ↔ `is_darwin`), same `ExecutableExtension` helper, same one-source-of-truth principle.
+Mirrors the Rust crate's `osinfo` module: same predicate names (`IsDarwin` ↔ `is_darwin`), same `ExecutableExtension` helper, `Hostname` ↔ `hostname`, same one-source-of-truth principle.
 
 ---
 

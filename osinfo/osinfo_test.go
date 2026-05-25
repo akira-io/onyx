@@ -1,6 +1,7 @@
 package osinfo
 
 import (
+	"os"
 	"runtime"
 	"testing"
 )
@@ -39,5 +40,19 @@ func TestExecutableExtension_MatchesPlatform(t *testing.T) {
 	}
 	if got != "" {
 		t.Fatalf("expected empty extension on non-Windows, got %q", got)
+	}
+}
+
+func TestHostname_MatchesOSHostnameWhenAvailable(t *testing.T) {
+	got := Hostname()
+	want, err := os.Hostname()
+	if err != nil {
+		if got != "" {
+			t.Fatalf("expected empty hostname on error, got %q", got)
+		}
+		return
+	}
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }
