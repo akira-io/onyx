@@ -18,6 +18,7 @@ import "github.com/akira-io/onyx/osinfo"
 | `(Platform).String() string` | method | `"darwin" \| "linux" \| "windows" \| <other runtime.GOOS>`. |
 | `ExecutableExtension() string` | func | `".exe"` on Windows, `""` otherwise. |
 | `Hostname() string` | func | OS host name, or `""` when it cannot be determined. |
+| `DeviceName() string` | func | Human-friendly machine name (macOS `ComputerName`, Windows `COMPUTERNAME`, Linux pretty hostname), falling back to `Hostname()`. |
 
 `Platform` is a struct with one unexported field. Compare with `==`. Pass by value — it is cheap to copy.
 

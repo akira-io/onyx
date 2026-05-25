@@ -56,3 +56,13 @@ func TestHostname_MatchesOSHostnameWhenAvailable(t *testing.T) {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
+
+func TestDeviceName_FallsBackToHostname(t *testing.T) {
+	got := DeviceName()
+	if got == "" {
+		if Hostname() != "" {
+			t.Fatalf("expected DeviceName to fall back to a non-empty hostname")
+		}
+		return
+	}
+}
